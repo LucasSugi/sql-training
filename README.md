@@ -1,2 +1,2 @@
 # sql-training
-SQL Exercices
+SQL training through various exercises from varied sources.
