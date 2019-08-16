@@ -1,0 +1,112 @@
+/*
+1 - We want to retrieve the names of all salespeople that have more than 1 order from the tables above.
+You can assume that each salesperson only has one ID.
+*/
+SELECT
+	S.NAME
+FROM
+	SALESPERSON S
+	JOIN ORDERS O
+		ON S.ID = O.SALESPERSON_ID
+GROUP BY
+	S.ID,S.NAME
+HAVING
+	COUNT(O.CUST_ID) > 1;
+
+-- OR
+
+SELECT
+	S.NAME
+FROM
+	SALESPERSON S
+    JOIN
+		(SELECT
+			O1.SALESPERSON_ID
+		FROM
+			ORDERS O1
+		GROUP BY
+			O1.SALESPERSON_ID
+		HAVING
+			COUNT(O1.CUST_ID)>1) O2
+	ON S.ID = O2.SALESPERSON_ID;
+
+
+/*
+2 - Find the largest order amount for each salesperson and the associated order number,
+along with the customer to whom that order belongs to.
+*/
+SELECT
+	S.NAME,
+	C.NAME,
+	TMP.NUMBER,
+	TMP.AMOUNT
+FROM
+	SALESPERSON S
+	JOIN
+		(SELECT
+			O1.NUMBER,
+			O1.SALESPERSON_ID,
+		    O1.CUST_ID,
+			O1.AMOUNT
+		FROM
+			ORDERS O1
+		WHERE
+			O1.AMOUNT >=
+				(SELECT
+					MAX(O2.AMOUNT)
+				FROM
+					ORDERS O2
+				WHERE O1.SALESPERSON_ID = O2.SALESPERSON_ID
+		        )) TMP
+		ON S.ID = TMP.SALESPERSON_ID
+	JOIN CUSTOMER C
+		ON C.ID = TMP.CUST_ID;
+
+-- OR
+SELECT
+	S.NAME,
+    C.NAME,
+    O2.NUMBER,
+    O2.AMOUNT
+FROM
+	ORDERS O2
+	JOIN
+		(SELECT
+			O.SALESPERSON_ID,
+			MAX(O.AMOUNT) AS MAX_AMOUNT
+		FROM
+			ORDERS O
+		GROUP BY
+			O.SALESPERSON_ID) O1
+		ON (O2.SALESPERSON_ID = O1.SALESPERSON_ID AND O2.AMOUNT = O1.MAX_AMOUNT)
+	JOIN
+		SALESPERSON S
+			ON S.ID = O2.SALESPERSON_ID
+	JOIN
+		CUSTOMER C
+			ON C.ID = O2.CUST_ID;
+
+-- OR
+SELECT
+	S.NAME,
+	C.NAME,
+	O3.NUMBER,
+	O3.AMOUNT
+FROM
+	SALESPERSON S
+	JOIN
+		(SELECT
+			O1.SALESPERSON_ID,
+			O1.CUST_ID,
+			O1.NUMBER,
+			O1.AMOUNT
+		FROM
+			ORDERS O1
+			LEFT JOIN ORDERS O2
+				ON (O1.SALESPERSON_ID = O2.SALESPERSON_ID AND O1.AMOUNT < O2.AMOUNT)
+		WHERE
+			O2.AMOUNT IS NULL) O3
+		ON S.ID = O3.SALESPERSON_ID
+	JOIN 
+		CUSTOMER C
+			ON C.ID = O3.CUST_ID;
