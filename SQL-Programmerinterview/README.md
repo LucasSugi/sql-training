@@ -1,3 +1,3 @@
 # SQL Programmerinterview
 
-SQL exercises solved from the site programmerinterview.com
+SQL exercises solved from the site www.programmerinterview.com
