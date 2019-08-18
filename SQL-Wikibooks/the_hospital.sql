@@ -64,7 +64,7 @@ FROM
 		ON Pa.SSN = U.Patient
 	JOIN Procedures Pro
 		ON Pro.Code = U.Procedures
-	LEFT JOIN Trained_In T
+	JOIN Trained_In T
 		ON T.Physician = Phy.EmployeeID AND T.Treatment = Pro.Code
 WHERE
 	T.CertificationExpires < U.DateUndergoes;
@@ -91,7 +91,6 @@ FROM
 		ON Pa.PCP = Phy2.EmployeeID
 	LEFT JOIN Nurse N
 		ON N.EmployeeID = A.PrepNurse
-
 WHERE
 	Pa.PCP <> A.Physician;
 
